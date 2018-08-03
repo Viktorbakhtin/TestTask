@@ -33,16 +33,52 @@ function selectCaption(){
 
 
 function orderByPrice() { 	///////////Клиент, который заплатил больше всех
-
-	$priced = DB::table('bids')->select('id', 'id_event','name', 'email', 'price')
+	$priced = DB::table('bids')->select('id_event','name','email', 'price')
 							->orderBy('price', 'desc')
 							->first();
                 foreach ($priced as $priceor) {
-				echo"<div>".$priceor."</div>";}
+				echo $priceor. " ";}
 			}
 
+function NoEvent () {                     ////////////Мероприятие без заявок + вывод всех заявок
+	$indexes = DB::table('events')->select('id')->count();
+	for ($index=1; $index<=$indexes; $index++) {
 
+              	$event_count = DB::table('bids')->select('id_event')->where('id_event', '=', $index)->count();
+
+				if ($event_count==0) {
+              	$noevents = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
+              	foreach ($noevents as $event_cap) {
+              		echo "<div>"."По мероприятию ".$event_cap->caption. " заявок нет"."</div>"."<br>";}
+              }
+
+            	if ($event_count>0) {
+            	$eventis = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
+              	foreach ($eventis as $event_capp) {
+              		echo "По мероприятию ".$event_capp->caption." ".$event_count. " заявок"."<br>";}
+             }}}
+
+function MoreThree() {     /////////////////////Больше 3 заявок
+	$indexes = DB::table('events')->select('id')->count();
+	for ($index=0; $index<=$indexes; $index++) {
+
+            $event_count = DB::table('bids')->select('id_event')->where('id_event', '=', $index)->count();
+
+            if ($event_count>3) {
+            	$eventis = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
+
+            foreach ($eventis as $event_capp) {
+              	echo "Больше 3 заявок у мероприятия ".$event_capp->caption." ".$event_count. " "."<br>";}
+
+             }}
+	}
+
+function MoreAll() {$results = DB::select('SELECT l.id_event, count(*) as cnt 
+    FROM bids l GROUP BY l.id_event ORDER BY cnt DESC LIMIT 1');
+		print_r ($results['0']);
+					};
 ?>
+
 <link href="https://fonts.googleapis.com/css?family=Didact+Gothic" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{{'/css/main.css'}}">
 <div class="back"><a href="{{ url('/') }}">Назад</a></div>
@@ -106,7 +142,9 @@ function orderByPrice() { 	///////////Клиент, который заплат�
  		</figure>
 	 	<figure>
 		 	<figcaption id="result"><strong>Результат выполнения</strong></figcaption>
-		 	<div class="content"></div>
+		 	<div class="content">
+		 		<? orderByPrice(); ?>
+		 	</div>
 	 	</figure>
  	</div>
  	<!-- Задание 3 -->
@@ -120,7 +158,8 @@ function orderByPrice() { 	///////////Клиент, который заплат�
  		</figure>
 	 	<figure>
 	 	<figcaption id="result"><strong>Результат выполнения</strong></figcaption>
-	 	<div class="content"> <div>
+	 	<div class="content"> 
+	 		 <? NoEvent (); ?> <div>
 	 	</div>
 	 	</figure>
  </div>
@@ -135,7 +174,8 @@ function orderByPrice() { 	///////////Клиент, который заплат�
  		</figure>
 	 	<figure>
 	 	<figcaption id="result"><strong>Результат выполнения</strong></figcaption>
-	 	<div class="content"> <div>
+	 	<div class="content">
+	 		<? MoreThree(); ?><div>
 	 	</div>
 	 	</figure>
  	</div>
@@ -150,100 +190,10 @@ function orderByPrice() { 	///////////Клиент, который заплат�
  		</figure>
 	 	<figure>
 	 	<figcaption id="result"><strong>Результат выполнения</strong></figcaption>
-	 	<div class="content"> <div>
+	 	<div class="content"> 
+	 		<? MoreAll(); ?> <div>
 	 	</div>
 	 	</figure>
  	</div>
 </div>
-
-<div> <? orderByPrice(); ?> </div>
-<?php 
-
-function NoEvent () {                     ////////////Мероприятие без заявок + вывод всех заявок
-	$indexes = DB::table('events')->select('id')->count();
-	for ($index=1; $index<=$indexes; $index++) {
-
-              	$event_count = DB::table('bids')->select('id_event')->where('id_event', '=', $index)->count();
-
-				if ($event_count==0) {
-              	$noevents = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
-              	foreach ($noevents as $event_cap) {
-              		echo "<div>"."По мероприятию ".$event_cap->caption. " заявок нет"."</div>"."<br>";}
-              }
-
-            	if ($event_count>0) {
-            	$eventis = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
-              	foreach ($eventis as $event_capp) {
-              		echo "По мероприятию ".$event_capp->caption." ".$event_count. " заявок"."<br>";}
-             }}}
-
- NoEvent (); ?>
-<?php 
-
-	function MoreThree() {     /////////////////////Больше 3 заявок
-	$indexes = DB::table('events')->select('id')->count();
-	for ($index=0; $index<=$indexes; $index++) {
-
-            $event_count = DB::table('bids')->select('id_event')->where('id_event', '=', $index)->count();
-
-            if ($event_count>3) {
-            	$eventis = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
-
-            foreach ($eventis as $event_capp) {
-              	echo "Больше 3 заявок у мероприятия ".$event_capp->caption." ".$event_count. " "."<br>";}
-
-             }}
-	}
-
-	MoreThree();
-
-/////5 задание через сырой sql, где показывает, самое большое колличество заявок по id мероприятию
-function MoreAll() {$results = DB::select('SELECT l.id_event, count(*) as cnt 
-    FROM bids l GROUP BY l.id_event ORDER BY cnt DESC LIMIT 1');
-		print_r ($results['0']);
-					};
-
-                             ///////////////////////////////Больше всего заявок
-	
-	// $indexes = DB::table('bids')->select('id_event')->count();
-	// for ($index=1; $index<=$indexes; $index++) {
-	// $eventis = DB::table('events')->select('id', 'caption')->where('id', '=', $index)->get();
-	// 	foreach ($eventis as $event_capp) {
-
- //              		$caption=array($event_capp->caption);}}
-
-	// for ($index=1; $index<=$indexes; $index++) {
-	// 	$event_count = DB::table('bids')->select('id_event')->where('id_event', '=', $index)->count();}
-	// $array_id = array();
-	// $key = array($eventis);
-	// $value = array($event_count);
-	// $array[$key] = $value;
-	// print_r($key);
-	// // print_r($array_id);
-	// // $maxid= max($array_id);
-	// echo "Больше всего заявок у мероприятия ". $caption. " "."<br>";}
-MoreAll();
-
-
-
-// $array_id = array();
- 
-// //2. в новый ассоциативный массив передать первый элемент типа ключ=>значение (это тоже понятно)
- 
-// $key = 'Ключ 1';
-// $value = 1;
- 
-// $array[$key] = $value;
- 
-// //3. далее программно необходимо пополнять ассоциативный массив новыми элементами (ключ=>значение);
- 
-// $key = array ('Мероприятие','Мероприятие 2','Мероприятие 3','Мероприятие 4');
-// $value = array (56, 78, 34, 7);
- 
-// for ($i = 0; $i<count($key); $i++) {
-//     $array[$key[$i]] = $value[$i];
-// }
- 
-// print_r ($array);
- ?>
 
